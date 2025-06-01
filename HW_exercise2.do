@@ -39,6 +39,11 @@ label variable LOSSES "Negative earnings"
 sum LOSSES
 display "Sample probability of negative earnings: " %6.4f r(mean)
 
+*5. Report a customized table using the command tabstat
+tabstat LLPTA PBTLLPTA LTA ILTA SIZE LOSSES, ///
+    statistics(mean sd skewness kurtosis count min max) ///
+    columns(statistics)
+
 
 
 
