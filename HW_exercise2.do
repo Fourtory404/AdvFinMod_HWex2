@@ -3,6 +3,8 @@ clear all
 
 import excel "/Users/shiyiwen/Desktop/Advanced Fin Modeling/homework/HOMEWORKDATA.xls", sheet("DATAEX2") firstrow
 
+*Author: Eleni Triantou, I-Wen Shih
+
 * 1. Remove missing observations
 drop if PBTLLPTA == "."
 drop if ILTA == "."
@@ -29,7 +31,9 @@ foreach var in PBTLLPTA LLPTA SIZE LTA ILTA{
 }
 
 *3. Generate the dummy variable LOSSES taking value equal to one if PBTLLPTA is negative and zero otherwise.
-
+gen LOSSES = 0
+replace LOSSES = 1 if PBTLLPTA < 0
+label variable LOSSES "Negative earnings"
 
 
 
