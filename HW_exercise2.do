@@ -85,7 +85,24 @@ display "F-statistic: " r(F)
 display "p-value: " r(p)
 
 *10. 
+* Store the baseline model first
+reghdfe LLPTA PBTLLPTA LTA ILTA SIZE, cluster(id_year)
+estimates store baseline
 
+* Store the extended model
+reghdfe LLPTA PBTLLPTA LTA ILTA SIZE, ///
+    absorb(country year) cluster(id_year)
+estimates store extended
+
+* Compare results
+esttab baseline extended, ///
+    title("Baseline vs Extended Model with Fixed Effects") ///
+    mtitles("Baseline" "Country & Year FE") ///
+    b(%9.4f) se(%9.4f) ///
+    stats(N r2) star(* 0.10 ** 0.05 *** 0.01)
+
+*10. (cont.) Do you notice any remarkable change with respect to the baseline model? 
+* Ans. : (to be added, check before submitting)
 
 
 
