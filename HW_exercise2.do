@@ -35,7 +35,9 @@ gen LOSSES = 0
 replace LOSSES = 1 if PBTLLPTA < 0
 label variable LOSSES "Negative earnings"
 
-
+*4. What is this probability in the sample? Report it using a display command in a programmatic way.
+sum LOSSES
+display "Sample probability of negative earnings: " %6.4f r(mean)
 
 
 
