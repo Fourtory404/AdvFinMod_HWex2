@@ -3,14 +3,13 @@ clear all
 
 import excel "/Users/shiyiwen/Desktop/Advanced Fin Modeling/homework/HOMEWORKDATA.xls", sheet("DATAEX2") firstrow
 
-*Author: Eleni Triantou, I-Wen Shih
+*Author: Eleni Triantou, I-Wen Shih, Garrick Morlaes
 
 * 1. Remove missing observations
 drop if PBTLLPTA == "."
 drop if ILTA == "."
 drop if LTA == "."
 * now there's only 7140 observations left, which we can use count function to check 
-
 
 *2. a)
 encode id, generate (id2)
@@ -67,11 +66,16 @@ display "Remaining observations after filtering: " r(N)
 
 *8. i.) Heteroskedasticity-robust standard errors (POLS):
 regress LLPTA PBTLLPTA LTA ILTA SIZE, robust
+estimates store robust_model
 
 *8. ii.) Two-way cluster-robust standard errors (individual and year):
 * in order to do a two-way cluster-robust standard errors
 egen id_year = group(id year)
 regress LLPTA PBTLLPTA LTA ILTA SIZE, cluster(id_year)
+estimates store clustered_model
+
+*8. comments: The outcomes of this two models are exactly the same data is likely cross-sectional (each firm appears only once) rather than panel data, making clustering irrelevant. (should be revised before submitting)
+estimates table robust_model clustered_model, b(%9.4f) se(%9.4f)
 
 *9. Building on the two-way cluster-robust standard errors, test the null hypothesis that the coefficients associated with LTA, ILTA and SIZE are jointly zero.
 * Step 1: Run the regression
@@ -104,12 +108,34 @@ esttab baseline extended, ///
 *10. (cont.) Do you notice any remarkable change with respect to the baseline model? 
 * Ans. : (to be added, check before submitting)
 
+*11. Test the null hypothesis that all the country-related dummy variables included in the model have associated a zero coefficient using an F-type test. 
+reg LLPTA PBTLLPTA LTA ILTA SIZE i.country i.year
+testparm i.country
+* The above codes sometimes only works if we do it seperately, that is first do the codes for the first 10 question then start again from Q11
 
+*12. Xtset the variables id and year to declare the panel-data nature of our data and enable the panel-data estimators in Stata.
+xtset id 
+xtset year
 
+*13. Use xtreg to estimate the baseline model extended with FE at the individual level. Do we still observe evidence supporting earnings smoothing?
+xtreg LLPTA PBTLLPTA LTA ILTA SIZE, fe robust
+*estimates store fe_extended
+* Ans. to be added!
 
+*14. use xtreg to estimate the baseline model with FE at the individual level and time dummies controlling fixed effect. Can we still conclude that bank managers engage in earning-smoothing strategies when setting LLP?
+xtreg LLPTA PBTLLPTA LTA ILTA SIZE i.year, fe robust
+* Ans. to be added!
 
+*15. Given the estimates of the previous model, test the hypothesis that all the time dummy variables included in the model are redundant building on an F test.
+reg LLPTA PBTLLPTA LTA ILTA SIZE i.year
+testparm i.year
 
+*16. Estimate the baseline model with FE and RE using conventional standard errors. Given those estimates, implement the Hausman test. On the basis of the resulting evidence, which estimation technique is better suited on this sample?
+xtreg LLPTA PBTLLPTA LTA ILTA SIZE, fe
+estimates store fixed
 
+xtreg LLPTA PBTLLPTA LTA ILTA SIZE, re
+estimates store random
 
-
-
+hausman fixed random, sigmamore
+*baseline model with FE is better since it's more consistent under H0 and Ha, to add more!!
